@@ -19,7 +19,7 @@ type Formatter<T> = (resData: any, data: T) => T
 type AdapterTask = <T>(
   initialData: T,
   url: string,
-  formatter: Formatter<T>
+  formatter?: Formatter<T>
 ) => CompositionCollection<T>
 
 let service: AxiosInstance
@@ -115,7 +115,7 @@ const createFetchMethod = (method: 'get' | 'head' | 'delete' | 'options', respon
   return <T>(
     initialData: T,
     url: string,
-    formatter: Formatter<T>
+    formatter: Formatter<T> = v => v
   ) => {
     const config = {
       url,
@@ -132,7 +132,7 @@ const createModifyMethod = (method: 'post' | 'put' | 'patch', urlencoded = false
   return <T>(
     initialData: T,
     url: string,
-    formatter: Formatter<T>
+    formatter: Formatter<T> = v => v
   ) => {
 
     const getHeaders = () => {
