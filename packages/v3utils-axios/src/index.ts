@@ -4,32 +4,24 @@ import qs from 'qs'
 import { ref, Ref } from 'vue'
 import { downloadFile } from './utils'
 
-type V3utilsCompositionConfig = {
-  formatter: (response: AxiosResponse) => any
-} & AxiosRequestConfig
-
 interface CompositionCollection<T, R = AxiosResponse> {
   data: Ref<T>
   response: Ref<AxiosResponse>,
   loading: Ref<boolean>
   error: Ref<Error | undefined>
-  task: Promise<AxiosResponse> | (() => Promise<AxiosResponse>)
+  task: (payload: Record<string, any>, config: AxiosRequestConfig) => Promise<AxiosResponse>
 }
 
 type AdapterTask = <T>(
   initialData: T,
   url: string,
   payload?: Record<string, any>,
-  config?: V3utilsCompositionConfig
+  config?: AxiosRequestConfig
 ) => CompositionCollection<T>
 
 let service: AxiosInstance
 export const customHeaders: Record<string, any> = {}
 export const customHeaderBlackMap: Record<string, string[]> = {}
-
-const defaultConfig: V3utilsCompositionConfig = {
-  formatter: (response: AxiosResponse) => response.data
-}
 
 export function create(config: AxiosRequestConfig) {
   service = service != null ? service : axios.create(config)
@@ -46,18 +38,52 @@ export function create(config: AxiosRequestConfig) {
   return service
 }
 
-function createTask<T>(initialData: T, config: V3utilsCompositionConfig): CompositionCollection<T> {
-  const { formatter } = config
+function getPayloadConfig(
+  preConfig: AxiosRequestConfig,
+  payload: Record<string, any>,
+  type: 'fetch' | 'modify',
+  json: boolean = false,
+  multipart: boolean = false
+) {
+  if (type === 'modify') {
+    if (json) {
+      payload = qs.stringify(payload)
+    }
 
+    if (multipart) {
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => formData.append(key, payload[key]))
+      payload = formData
+    }
+
+    preConfig.data = payload
+  }
+
+  if (type === 'fetch') {
+    preConfig.params = payload
+  }
+
+  return preConfig
+}
+
+function createTask<T>(
+  type: 'fetch' | 'modify',
+  initialData: T,
+  preConfig: AxiosRequestConfig,
+  json: boolean = false,
+  multipart: boolean = false
+): CompositionCollection<T> {
   const loading = ref(true)
   const error = ref()
   const data = ref(initialData) as Ref<T>
   const response = ref()
 
-  const task = (): Promise<AxiosResponse> => {
+  const task = (payload: Record<string, any>, config: AxiosRequestConfig): Promise<AxiosResponse> => {
+    Object.assign(getPayloadConfig(preConfig, payload, type, json, multipart), config)
+
     return service.request(config).then(res => {
       response.value = res
-      data.value = formatter(res)
+      data.value = res.data
       loading.value = false
 
       return res
@@ -81,44 +107,30 @@ function createTask<T>(initialData: T, config: V3utilsCompositionConfig): Compos
 const createFetchMethod = (method: 'get' | 'head' | 'delete' | 'options', responseType: ResponseType = 'json'): AdapterTask => {
   return <T>(
     initialData: T,
-    url: string,
-    params?: Record<string, any>,
-    config?: V3utilsCompositionConfig
+    url: string
   ) => {
-    config = Object.assign({
+    const config = {
       url,
       responseType,
       method,
-      params,
-      ...defaultConfig
-    }, config)
+    }
 
-    return createTask(initialData, config)
+    return createTask('fetch', initialData, config)
   }
 }
 
 const createModifyMethod = (method: 'post' | 'put' | 'patch', json = false, multipart = false): AdapterTask => {
   return <T>(
     initialData: T,
-    url: string,
-    data?: Record<string, any>,
-    config?: V3utilsCompositionConfig
+    url: string
   ) => {
-
-    if (multipart && data) {
-      const formData = new FormData()
-      Object.keys(data).forEach(key => formData.append(key, data?.[key]))
-      data = formData
-    }
-
-    config = Object.assign({
+    const config = {
       url,
       headers: multipart ? { 'Content-Type': 'multipart/form-data' } : undefined,
-      method,
-      data: json ? data : qs.stringify(data),
-    }, config)
+      method
+    }
 
-    return createTask(initialData, config)
+    return createTask('modify', initialData, config, json, multipart)
   }
 }
 
