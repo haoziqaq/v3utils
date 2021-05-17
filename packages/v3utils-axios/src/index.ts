@@ -12,11 +12,14 @@ interface CompositionCollection<T, R = AxiosResponse> {
   task: (payload?: Record<string, any>, config?: AxiosRequestConfig) => Promise<AxiosResponse>
 }
 
+type V3utilsAxiosRequestConfig<T> = AxiosRequestConfig & { formatter: Formatter<T> }
+
+type Formatter<T> = (resData: any, data: T) => T
+
 type AdapterTask = <T>(
   initialData: T,
   url: string,
-  payload?: Record<string, any>,
-  config?: AxiosRequestConfig
+  formatter: Formatter<T>
 ) => CompositionCollection<T>
 
 let service: AxiosInstance
@@ -38,13 +41,13 @@ export function create(config: AxiosRequestConfig) {
   return service
 }
 
-function getPayloadConfig(
-  preConfig: AxiosRequestConfig,
+function getPayloadConfig<T>(
+  preConfig: V3utilsAxiosRequestConfig<T>,
   payload: Record<string, any> = {},
   type: 'fetch' | 'modify',
   urlencoded: boolean = false,
   multipart: boolean = false
-) {
+): V3utilsAxiosRequestConfig<T> {
   if (type === 'modify') {
     if (urlencoded) {
       payload = qs.stringify(payload)
@@ -70,7 +73,7 @@ function getPayloadConfig(
 function createTask<T>(
   type: 'fetch' | 'modify',
   initialData: T,
-  preConfig: AxiosRequestConfig,
+  preConfig: V3utilsAxiosRequestConfig<T>,
   urlencoded: boolean = false,
   multipart: boolean = false
 ): CompositionCollection<T> {
@@ -79,12 +82,15 @@ function createTask<T>(
   const data = ref(initialData) as Ref<T>
   const response = ref()
 
-  const task = (payload?: Record<string, any>, config?: AxiosRequestConfig): Promise<AxiosResponse> => {
-    config = Object.assign(getPayloadConfig(preConfig, payload, type, urlencoded, multipart), config)
+  const task = (payload?: Record<string, any>, config: AxiosRequestConfig = {}): Promise<AxiosResponse> => {
+    const taskConfig = Object.assign(
+      getPayloadConfig(preConfig, payload, type, urlencoded, multipart),
+      config
+    )
 
-    return service.request(config).then(res => {
+    return service.request(taskConfig).then(res => {
       response.value = res
-      data.value = res.data
+      data.value = taskConfig.formatter(res.data, data.value)
       loading.value = false
 
       return res
@@ -108,12 +114,14 @@ function createTask<T>(
 const createFetchMethod = (method: 'get' | 'head' | 'delete' | 'options', responseType: ResponseType = 'json'): AdapterTask => {
   return <T>(
     initialData: T,
-    url: string
+    url: string,
+    formatter: Formatter<T>
   ) => {
     const config = {
       url,
       responseType,
       method,
+      formatter
     }
 
     return createTask('fetch', initialData, config)
@@ -123,7 +131,8 @@ const createFetchMethod = (method: 'get' | 'head' | 'delete' | 'options', respon
 const createModifyMethod = (method: 'post' | 'put' | 'patch', urlencoded = false, multipart = false): AdapterTask => {
   return <T>(
     initialData: T,
-    url: string
+    url: string,
+    formatter: Formatter<T>
   ) => {
 
     const getHeaders = () => {
@@ -132,10 +141,11 @@ const createModifyMethod = (method: 'post' | 'put' | 'patch', urlencoded = false
       return { 'Content-Type': 'application/json' }
     }
 
-    const config = {
+    const config: V3utilsAxiosRequestConfig<T> = {
       url,
       headers: getHeaders(),
-      method
+      method,
+      formatter
     }
 
     return createTask('modify', initialData, config, urlencoded, multipart)
