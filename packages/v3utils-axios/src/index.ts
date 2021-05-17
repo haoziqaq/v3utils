@@ -20,8 +20,8 @@ interface CompositionCollection<T, R = AxiosResponse> {
 type AdapterTask = <T>(
   initialData: T,
   url: string,
-  data: Record<string, any>,
-  config: V3utilsCompositionConfig
+  payload?: Record<string, any>,
+  config?: V3utilsCompositionConfig
 ) => CompositionCollection<T>
 
 let service: AxiosInstance
