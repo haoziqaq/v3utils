@@ -42,11 +42,11 @@ function getPayloadConfig(
   preConfig: AxiosRequestConfig,
   payload: Record<string, any> = {},
   type: 'fetch' | 'modify',
-  json: boolean = false,
+  urlencoded: boolean = false,
   multipart: boolean = false
 ) {
   if (type === 'modify') {
-    if (json) {
+    if (urlencoded) {
       payload = qs.stringify(payload)
     }
 
@@ -70,7 +70,7 @@ function createTask<T>(
   type: 'fetch' | 'modify',
   initialData: T,
   preConfig: AxiosRequestConfig,
-  json: boolean = false,
+  urlencoded: boolean = false,
   multipart: boolean = false
 ): CompositionCollection<T> {
   const loading = ref(true)
@@ -79,7 +79,7 @@ function createTask<T>(
   const response = ref()
 
   const task = (payload?: Record<string, any>, config?: AxiosRequestConfig): Promise<AxiosResponse> => {
-    config = Object.assign(getPayloadConfig(preConfig, payload, type, json, multipart), config)
+    config = Object.assign(getPayloadConfig(preConfig, payload, type, urlencoded, multipart), config)
 
     return service.request(config).then(res => {
       response.value = res
@@ -119,7 +119,7 @@ const createFetchMethod = (method: 'get' | 'head' | 'delete' | 'options', respon
   }
 }
 
-const createModifyMethod = (method: 'post' | 'put' | 'patch', json = false, multipart = false): AdapterTask => {
+const createModifyMethod = (method: 'post' | 'put' | 'patch', urlencoded = false, multipart = false): AdapterTask => {
   return <T>(
     initialData: T,
     url: string
@@ -127,8 +127,8 @@ const createModifyMethod = (method: 'post' | 'put' | 'patch', json = false, mult
 
     const getHeaders = () => {
       if (multipart) return { 'Content-Type': 'multipart/form-data' }
-      if (json) return { 'Content-Type': 'application/json' }
-      return { 'Content-Type': 'application/x-www-form-urlencoded' }
+      if (urlencoded) return { 'Content-Type': 'application/x-www-form-urlencoded' }
+      return { 'Content-Type': 'application/json' }
     }
 
     const config = {
@@ -137,7 +137,7 @@ const createModifyMethod = (method: 'post' | 'put' | 'patch', json = false, mult
       method
     }
 
-    return createTask('modify', initialData, config, json, multipart)
+    return createTask('modify', initialData, config, urlencoded, multipart)
   }
 }
 
@@ -151,13 +151,13 @@ export const useHeadBlob = createFetchMethod('head', 'blob')
 export const useDeleteBlob = createFetchMethod('delete', 'blob')
 export const useOptionsBlob = createFetchMethod('options', 'blob')
 
-export const usePost = createModifyMethod('post')
-export const usePut = createModifyMethod('put')
-export const usePatch = createModifyMethod('patch')
+export const usePost = createModifyMethod('post', true)
+export const usePut = createModifyMethod('put', true)
+export const usePatch = createModifyMethod('patch', true)
 
-export const usePostJSON = createModifyMethod('post', true)
-export const usePutJSON = createModifyMethod('put', true)
-export const usePatchJSON = createModifyMethod('patch', true)
+export const usePostJSON = createModifyMethod('post')
+export const usePutJSON = createModifyMethod('put')
+export const usePatchJSON = createModifyMethod('patch')
 
 export const usePostMultipart = createModifyMethod('post', false, true)
 export const usePutMultipart = createModifyMethod('put', false, true)
