@@ -12,7 +12,7 @@ interface CompositionCollection<T, R = AxiosResponse> {
     error: Ref<Error | undefined>;
     task: Promise<AxiosResponse> | (() => Promise<AxiosResponse>);
 }
-declare type AdapterTask = <T>(initialData: T, url: string, data: Record<string, any>, config: V3utilsCompositionConfig) => CompositionCollection<T>;
+declare type AdapterTask = <T>(initialData: T, url: string, payload?: Record<string, any>, config?: V3utilsCompositionConfig) => CompositionCollection<T>;
 export declare const customHeaders: Record<string, any>;
 export declare const customHeaderBlackMap: Record<string, string[]>;
 export declare function create(config: AxiosRequestConfig): AxiosInstance;
