@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.5](https://github.com/haoziqaq/v3utils/compare/v0.1.4...v0.1.5) (2021-05-17)
+
+
+### Bug Fixes
+
+* **axios:** fix bug of arg ([14c95d6](https://github.com/haoziqaq/v3utils/commit/14c95d651aed49f8fbbd0231cae67e88a08de008))
+* **axios:** fix bug of arg ([0b2ab7c](https://github.com/haoziqaq/v3utils/commit/0b2ab7c7efbdd78e5239413b635ea8b42d80700b))
+
+
+
+
+
 ## [0.1.4](https://github.com/haoziqaq/v3utils/compare/v0.1.3...v0.1.4) (2021-05-17)
 
 
