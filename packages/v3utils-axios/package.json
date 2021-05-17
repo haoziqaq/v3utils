@@ -2,6 +2,9 @@
   "name": "@v3utils/axios",
   "version": "0.1.0",
   "description": "axios of v3utils",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "keywords": [
     "axios",
     "composition api",
@@ -33,5 +36,6 @@
   },
   "devDependencies": {
     "typescript": "^4.2.4"
-  }
+  },
+  "gitHead": "ab6c7a382d55b3a37faf926347b2389430473c39"
 }
