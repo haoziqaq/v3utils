@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.6](https://github.com/haoziqaq/v3utils/compare/v0.1.5...v0.1.6) (2021-05-17)
+
+
+### Bug Fixes
+
+* **axios:** ... ([154b354](https://github.com/haoziqaq/v3utils/commit/154b35405e5348d6eef0ae60c655882f6d5846fb))
+* **axios:** remove immdiate api ([d8c9068](https://github.com/haoziqaq/v3utils/commit/d8c9068d1de493921b60b6e476b3fa3204025b07))
+
+
+
+
+
 ## [0.1.5](https://github.com/haoziqaq/v3utils/compare/v0.1.4...v0.1.5) (2021-05-17)
 
 
