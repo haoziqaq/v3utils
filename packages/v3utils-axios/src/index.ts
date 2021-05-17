@@ -14,7 +14,7 @@ interface CompositionCollection<T, R = AxiosResponse> {
 
 type V3utilsAxiosRequestConfig<T> = AxiosRequestConfig & { formatter: Formatter<T> }
 
-type Formatter<T> = (resData: any, data: T) => T
+type Formatter<T> = (responseData: any, currentData: T) => T
 
 type AdapterTask = <T>(
   initialData: T,
