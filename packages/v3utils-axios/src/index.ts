@@ -124,9 +124,16 @@ const createModifyMethod = (method: 'post' | 'put' | 'patch', json = false, mult
     initialData: T,
     url: string
   ) => {
+
+    const getHeaders = () => {
+      if (multipart) return { 'Content-Type': 'multipart/form-data' }
+      if (json) return { 'Content-Type': 'application/json' }
+      return { 'Content-Type': 'application/x-www-form-urlencoded' }
+    }
+
     const config = {
       url,
-      headers: multipart ? { 'Content-Type': 'multipart/form-data' } : undefined,
+      headers: getHeaders(),
       method
     }
 
