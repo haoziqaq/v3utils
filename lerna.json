@@ -1,0 +1,19 @@
+{
+  "packages": [
+    "packages/*"
+  ],
+  "useWorkspaces": true,
+  "npmClient": "yarn",
+  "command": {
+    "version": {
+      "conventionalCommits": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "ignoreChanges": [
+    "**/*.md"
+  ],
+  "version": "0.0.0"
+}
