@@ -65,6 +65,7 @@ function createTask(compositionConfig, axiosConfig) {
 const createFetchMethod = (method, responseType = 'json', download = false) => {
     return (compositionConfig, url, params, axiosConfig) => {
         axiosConfig = Object.assign({
+            url,
             responseType,
             method,
             params,
@@ -74,11 +75,13 @@ const createFetchMethod = (method, responseType = 'json', download = false) => {
 };
 const createModifyMethod = (method, json = false, multipart = false) => {
     return (compositionConfig, url, data, axiosConfig) => {
-        if (multipart) {
-            data = new FormData();
-            Object.keys(data).forEach(key => data.append(key, data[key]));
+        if (multipart && data) {
+            const formData = new FormData();
+            Object.keys(data).forEach(key => formData.append(key, data === null || data === void 0 ? void 0 : data[key]));
+            data = formData;
         }
         axiosConfig = Object.assign({
+            url,
             headers: multipart ? { 'Content-Type': 'multipart/form-data' } : undefined,
             method,
             data: json ? data : qs_1.default.stringify(data),

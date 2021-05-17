@@ -114,9 +114,10 @@ const createModifyMethod = (method: 'post' | 'put' | 'patch', json = false, mult
     axiosConfig?: AxiosRequestConfig
   ) => {
 
-    if (multipart) {
-      data = new FormData()
-      Object.keys(data).forEach(key => data.append(key, data[key]))
+    if (multipart && data) {
+      const formData = new FormData()
+      Object.keys(data).forEach(key => formData.append(key, data?.[key]))
+      data = formData
     }
 
     axiosConfig = Object.assign({

@@ -3,24 +3,13 @@
   const ora = require('ora')
   const { resolve } = require('path')
   const CWD = process.cwd()
-  const PKG_CLI = resolve(CWD, './packages/v3utils-axios')
-  const PKG_ICONS = resolve(CWD, './packages/varlet-icons')
-  const PKG_UI = resolve(CWD, './packages/varlet-ui')
+  const PKG_AXIOS = resolve(CWD, './packages/v3utils-axios')
 
-  const buildCli = execa('yarn', ['build'], {
-    cwd: PKG_CLI,
-  })
-  const buildIcon = execa('yarn', ['build'], {
-    cwd: PKG_ICONS,
+  const buildAxios = execa('yarn', ['build'], {
+    cwd: PKG_AXIOS,
   })
 
-  let spinner = ora('Start build @varlet/cli & @varlet/icons').start()
-  await Promise.all([buildCli, buildIcon])
-  spinner.succeed('@varlet/cli & @varlet/icons build success')
-
-  spinner = ora('Start compile @varlet/ui').start()
-  await execa('yarn', ['compile'], {
-    cwd: PKG_UI,
-  })
-  spinner.succeed('@varlet/ui compile success')
+  let spinner = ora('Start build @v3utils/axios').start()
+  await buildAxios
+  spinner.succeed('@v3utils/axios build success')
 })()
