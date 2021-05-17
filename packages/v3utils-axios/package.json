@@ -1,6 +1,6 @@
 {
   "name": "@v3utils/axios",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "axios of v3utils",
   "main": "lib/index.js",
   "module": "lib/index.js",
