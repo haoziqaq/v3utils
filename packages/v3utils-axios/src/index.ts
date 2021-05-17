@@ -92,10 +92,11 @@ const createFetchMethod = (method: 'get' | 'head' | 'delete' | 'options', respon
   return <T>(
     compositionConfig: CompositionConfig<T> | T,
     url: string,
-    params: Record<string, any>,
-    axiosConfig: AxiosRequestConfig
+    params?: Record<string, any>,
+    axiosConfig?: AxiosRequestConfig
   ) => {
     axiosConfig = Object.assign({
+      url,
       responseType,
       method,
       params,
@@ -109,8 +110,8 @@ const createModifyMethod = (method: 'post' | 'put' | 'patch', json = false, mult
   return <T>(
     compositionConfig: CompositionConfig<T> | T,
     url: string,
-    data: Record<string, any>,
-    axiosConfig: AxiosRequestConfig
+    data?: Record<string, any>,
+    axiosConfig?: AxiosRequestConfig
   ) => {
 
     if (multipart) {
@@ -119,6 +120,7 @@ const createModifyMethod = (method: 'post' | 'put' | 'patch', json = false, mult
     }
 
     axiosConfig = Object.assign({
+      url,
       headers: multipart ? { 'Content-Type': 'multipart/form-data' } : undefined,
       method,
       data: json ? data : qs.stringify(data),
