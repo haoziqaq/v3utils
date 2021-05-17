@@ -9,7 +9,7 @@ interface CompositionCollection<T, R = AxiosResponse> {
   response: Ref<AxiosResponse>,
   loading: Ref<boolean>
   error: Ref<Error | undefined>
-  task: (payload: Record<string, any>, config: AxiosRequestConfig) => Promise<AxiosResponse>
+  task: (payload?: Record<string, any>, config?: AxiosRequestConfig) => Promise<AxiosResponse>
 }
 
 type AdapterTask = <T>(
