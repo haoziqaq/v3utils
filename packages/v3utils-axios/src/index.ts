@@ -5,7 +5,6 @@ import { ref, Ref } from 'vue'
 import { downloadFile } from './utils'
 
 type V3utilsCompositionConfig = {
-  immediate: boolean
   formatter: (response: AxiosResponse) => any
 } & AxiosRequestConfig
 
@@ -29,7 +28,6 @@ export const customHeaders: Record<string, any> = {}
 export const customHeaderBlackMap: Record<string, string[]> = {}
 
 const defaultConfig: V3utilsCompositionConfig = {
-  immediate: true,
   formatter: (response: AxiosResponse) => response.data
 }
 
@@ -49,7 +47,7 @@ export function create(config: AxiosRequestConfig) {
 }
 
 function createTask<T>(initialData: T, config: V3utilsCompositionConfig): CompositionCollection<T> {
-  const { formatter, immediate } = config
+  const { formatter } = config
 
   const loading = ref(true)
   const error = ref()
@@ -76,7 +74,7 @@ function createTask<T>(initialData: T, config: V3utilsCompositionConfig): Compos
     data,
     error,
     response,
-    task: immediate ? task() : task
+    task,
   }
 }
 
