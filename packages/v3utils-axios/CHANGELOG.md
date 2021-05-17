@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.2](https://github.com/haoziqaq/v3utils/compare/v0.1.1...v0.1.2) (2021-05-17)
+
+
+### Bug Fixes
+
+* **axios:** fix bug of url ([81d77ef](https://github.com/haoziqaq/v3utils/commit/81d77eff9ba1bbfbe2ba7d1352b9e4a99f08a6a8))
+
+
+
+
+
 ## [0.1.1](https://github.com/haoziqaq/v3utils/compare/v0.1.0...v0.1.1) (2021-05-17)
 
 
