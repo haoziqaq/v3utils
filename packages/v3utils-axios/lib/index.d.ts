@@ -1,11 +1,10 @@
 import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Ref } from 'vue';
 import { downloadFile } from './utils';
-interface CompositionConfig<T> {
-    initialData: T;
+declare type V3utilsCompositionConfig = {
     immediate: boolean;
     formatter: (response: AxiosResponse) => any;
-}
+} & AxiosRequestConfig;
 interface CompositionCollection<T, R = AxiosResponse> {
     data: Ref<T>;
     response: Ref<AxiosResponse>;
@@ -13,7 +12,7 @@ interface CompositionCollection<T, R = AxiosResponse> {
     error: Ref<Error | undefined>;
     task: Promise<AxiosResponse> | (() => Promise<AxiosResponse>);
 }
-declare type AdapterTask = <T>(compositionConfig: CompositionConfig<T> | T, url: string, data: Record<string, any>, axiosConfig: AxiosRequestConfig) => CompositionCollection<T>;
+declare type AdapterTask = <T>(initialData: T, url: string, data: Record<string, any>, config: V3utilsCompositionConfig) => CompositionCollection<T>;
 export declare const customHeaders: Record<string, any>;
 export declare const customHeaderBlackMap: Record<string, string[]>;
 export declare function create(config: AxiosRequestConfig): AxiosInstance;

@@ -12,8 +12,7 @@ const utils_1 = require("./utils");
 let service;
 exports.customHeaders = {};
 exports.customHeaderBlackMap = {};
-const defaultCompositionConfig = {
-    initialData: undefined,
+const defaultConfig = {
     immediate: true,
     formatter: (response) => response.data
 };
@@ -31,19 +30,14 @@ function create(config) {
     return service;
 }
 exports.create = create;
-const formatConfig = (compositionConfig) => {
-    return utils_1.isPlainObject(compositionConfig)
-        ? compositionConfig
-        : Object.assign(defaultCompositionConfig, { initialData: compositionConfig });
-};
-function createTask(compositionConfig, axiosConfig) {
-    const { initialData, formatter, immediate } = compositionConfig;
+function createTask(initialData, config) {
+    const { formatter, immediate } = config;
     const loading = vue_1.ref(true);
     const error = vue_1.ref();
     const data = vue_1.ref(initialData);
     const response = vue_1.ref();
     const task = () => {
-        return service.request(axiosConfig).then(res => {
+        return service.request(config).then(res => {
             response.value = res;
             data.value = formatter(res);
             loading.value = false;
@@ -62,31 +56,29 @@ function createTask(compositionConfig, axiosConfig) {
         task: immediate ? task() : task
     };
 }
-const createFetchMethod = (method, responseType = 'json', download = false) => {
-    return (compositionConfig, url, params, axiosConfig) => {
-        axiosConfig = Object.assign({
-            url,
+const createFetchMethod = (method, responseType = 'json') => {
+    return (initialData, url, params, config) => {
+        config = Object.assign(Object.assign({ url,
             responseType,
             method,
-            params,
-        }, axiosConfig);
-        return createTask(formatConfig(compositionConfig), axiosConfig);
+            params }, defaultConfig), config);
+        return createTask(initialData, config);
     };
 };
 const createModifyMethod = (method, json = false, multipart = false) => {
-    return (compositionConfig, url, data, axiosConfig) => {
+    return (initialData, url, data, config) => {
         if (multipart && data) {
             const formData = new FormData();
             Object.keys(data).forEach(key => formData.append(key, data === null || data === void 0 ? void 0 : data[key]));
             data = formData;
         }
-        axiosConfig = Object.assign({
+        config = Object.assign({
             url,
             headers: multipart ? { 'Content-Type': 'multipart/form-data' } : undefined,
             method,
             data: json ? data : qs_1.default.stringify(data),
-        }, axiosConfig);
-        return createTask(formatConfig(compositionConfig), axiosConfig);
+        }, config);
+        return createTask(initialData, config);
     };
 };
 exports.useGet = createFetchMethod('get');

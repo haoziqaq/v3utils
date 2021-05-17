@@ -2,13 +2,12 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, ResponseType }
 // @ts-ignore
 import qs from 'qs'
 import { ref, Ref } from 'vue'
-import { isPlainObject, downloadFile } from './utils'
+import { downloadFile } from './utils'
 
-interface CompositionConfig<T> {
-  initialData: T
+type V3utilsCompositionConfig = {
   immediate: boolean
   formatter: (response: AxiosResponse) => any
-}
+} & AxiosRequestConfig
 
 interface CompositionCollection<T, R = AxiosResponse> {
   data: Ref<T>
@@ -19,18 +18,17 @@ interface CompositionCollection<T, R = AxiosResponse> {
 }
 
 type AdapterTask = <T>(
-  compositionConfig: CompositionConfig<T> | T,
+  initialData: T,
   url: string,
   data: Record<string, any>,
-  axiosConfig: AxiosRequestConfig
+  config: V3utilsCompositionConfig
 ) => CompositionCollection<T>
 
 let service: AxiosInstance
 export const customHeaders: Record<string, any> = {}
 export const customHeaderBlackMap: Record<string, string[]> = {}
 
-const defaultCompositionConfig: CompositionConfig<undefined> = {
-  initialData: undefined,
+const defaultConfig: V3utilsCompositionConfig = {
   immediate: true,
   formatter: (response: AxiosResponse) => response.data
 }
@@ -50,14 +48,8 @@ export function create(config: AxiosRequestConfig) {
   return service
 }
 
-const formatConfig = <T>(compositionConfig: CompositionConfig<T> | T) => {
-  return isPlainObject(compositionConfig)
-    ? compositionConfig as CompositionConfig<T>
-    : Object.assign(defaultCompositionConfig, { initialData: compositionConfig as T })
-}
-
-function createTask<T>(compositionConfig: CompositionConfig<T>, axiosConfig: AxiosRequestConfig): CompositionCollection<T> {
-  const { initialData, formatter, immediate } = compositionConfig
+function createTask<T>(initialData: T, config: V3utilsCompositionConfig): CompositionCollection<T> {
+  const { formatter, immediate } = config
 
   const loading = ref(true)
   const error = ref()
@@ -65,7 +57,7 @@ function createTask<T>(compositionConfig: CompositionConfig<T>, axiosConfig: Axi
   const response = ref()
 
   const task = (): Promise<AxiosResponse> => {
-    return service.request(axiosConfig).then(res => {
+    return service.request(config).then(res => {
       response.value = res
       data.value = formatter(res)
       loading.value = false
@@ -88,30 +80,31 @@ function createTask<T>(compositionConfig: CompositionConfig<T>, axiosConfig: Axi
   }
 }
 
-const createFetchMethod = (method: 'get' | 'head' | 'delete' | 'options', responseType: ResponseType = 'json', download = false): AdapterTask => {
+const createFetchMethod = (method: 'get' | 'head' | 'delete' | 'options', responseType: ResponseType = 'json'): AdapterTask => {
   return <T>(
-    compositionConfig: CompositionConfig<T> | T,
+    initialData: T,
     url: string,
     params?: Record<string, any>,
-    axiosConfig?: AxiosRequestConfig
+    config?: V3utilsCompositionConfig
   ) => {
-    axiosConfig = Object.assign({
+    config = Object.assign({
       url,
       responseType,
       method,
       params,
-    }, axiosConfig)
+      ...defaultConfig
+    }, config)
 
-    return createTask(formatConfig<T>(compositionConfig), axiosConfig)
+    return createTask(initialData, config)
   }
 }
 
 const createModifyMethod = (method: 'post' | 'put' | 'patch', json = false, multipart = false): AdapterTask => {
   return <T>(
-    compositionConfig: CompositionConfig<T> | T,
+    initialData: T,
     url: string,
     data?: Record<string, any>,
-    axiosConfig?: AxiosRequestConfig
+    config?: V3utilsCompositionConfig
   ) => {
 
     if (multipart && data) {
@@ -120,14 +113,14 @@ const createModifyMethod = (method: 'post' | 'put' | 'patch', json = false, mult
       data = formData
     }
 
-    axiosConfig = Object.assign({
+    config = Object.assign({
       url,
       headers: multipart ? { 'Content-Type': 'multipart/form-data' } : undefined,
       method,
       data: json ? data : qs.stringify(data),
-    }, axiosConfig)
+    }, config)
 
-    return createTask(formatConfig<T>(compositionConfig), axiosConfig)
+    return createTask(initialData, config)
   }
 }
 
