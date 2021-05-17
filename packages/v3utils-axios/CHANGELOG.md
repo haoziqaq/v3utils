@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.3](https://github.com/haoziqaq/v3utils/compare/v0.1.2...v0.1.3) (2021-05-17)
+
+
+### Bug Fixes
+
+* **axios:** fix axios arg error and type error ([26d9850](https://github.com/haoziqaq/v3utils/commit/26d98508218fcbafb5dfdd6f111c4ce26b4eb4e6))
+
+
+
+
+
 ## [0.1.2](https://github.com/haoziqaq/v3utils/compare/v0.1.1...v0.1.2) (2021-05-17)
 
 
