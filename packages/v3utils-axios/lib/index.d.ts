@@ -2,7 +2,6 @@ import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Ref } from 'vue';
 import { downloadFile } from './utils';
 declare type V3utilsCompositionConfig = {
-    immediate: boolean;
     formatter: (response: AxiosResponse) => any;
 } & AxiosRequestConfig;
 interface CompositionCollection<T, R = AxiosResponse> {

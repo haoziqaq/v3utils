@@ -13,7 +13,6 @@ let service;
 exports.customHeaders = {};
 exports.customHeaderBlackMap = {};
 const defaultConfig = {
-    immediate: true,
     formatter: (response) => response.data
 };
 function create(config) {
@@ -31,7 +30,7 @@ function create(config) {
 }
 exports.create = create;
 function createTask(initialData, config) {
-    const { formatter, immediate } = config;
+    const { formatter } = config;
     const loading = vue_1.ref(true);
     const error = vue_1.ref();
     const data = vue_1.ref(initialData);
@@ -53,7 +52,7 @@ function createTask(initialData, config) {
         data,
         error,
         response,
-        task: immediate ? task() : task
+        task,
     };
 }
 const createFetchMethod = (method, responseType = 'json') => {
