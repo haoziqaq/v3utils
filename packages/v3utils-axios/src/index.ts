@@ -40,7 +40,7 @@ export function create(config: AxiosRequestConfig) {
 
 function getPayloadConfig(
   preConfig: AxiosRequestConfig,
-  payload: Record<string, any>,
+  payload: Record<string, any> = {},
   type: 'fetch' | 'modify',
   json: boolean = false,
   multipart: boolean = false
@@ -78,8 +78,8 @@ function createTask<T>(
   const data = ref(initialData) as Ref<T>
   const response = ref()
 
-  const task = (payload: Record<string, any>, config: AxiosRequestConfig): Promise<AxiosResponse> => {
-    Object.assign(getPayloadConfig(preConfig, payload, type, json, multipart), config)
+  const task = (payload?: Record<string, any>, config?: AxiosRequestConfig): Promise<AxiosResponse> => {
+    config = Object.assign(getPayloadConfig(preConfig, payload, type, json, multipart), config)
 
     return service.request(config).then(res => {
       response.value = res
