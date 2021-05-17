@@ -57,10 +57,12 @@ function getPayloadConfig(
     }
 
     preConfig.data = payload
+    preConfig.data._t = Date.now()
   }
 
   if (type === 'fetch') {
     preConfig.params = payload
+    preConfig.params._t = Date.now()
   }
 
   return preConfig
