@@ -2,8 +2,9 @@
   "name": "@v3utils/vite-plugins",
   "version": "0.2.2",
   "description": "plugins of vite",
-  "main": "src/index.js",
-  "module": "src/index.js",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "keywords": [
     "vite",
     "plugins"
