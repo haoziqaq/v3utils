@@ -1,61 +1,59 @@
-import hash from 'hash-sum'
-import { pathExistsSync, readdirSync } from 'fs-extra'
-import { root, isDir } from './utils'
-import { resolve } from 'path'
-import { normalizePath } from 'vite'
-
-const isRouteDir = (path) => isDir(path) && readdirSync(path).includes('index.vue')
-
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+// @ts-ignore
+const hash_sum_1 = __importDefault(require("hash-sum"));
+// @ts-ignore
+const fs_extra_1 = require("fs-extra");
+const utils_1 = require("./utils");
+const path_1 = require("path");
+// @ts-ignore
+const vite_1 = require("vite");
+const isRouteDir = (path) => utils_1.isDir(path) && fs_extra_1.readdirSync(path).includes('index.vue');
 const createRoutes = (dirPath, imports, root = false) => {
-  let routes = []
-
-  const dir = readdirSync(dirPath)
-
-  dir.forEach((path) => {
-    const fullPath = resolve(dirPath, path)
-    if (isRouteDir(fullPath)) {
-      let route = `{
-        path: '${root ? '/' : '' }${path}',
-        component: () => import('${normalizePath(resolve(fullPath, 'index.vue'))}'),
+    let routes = [];
+    const dir = fs_extra_1.readdirSync(dirPath);
+    dir.forEach((path) => {
+        const fullPath = path_1.resolve(dirPath, path);
+        if (isRouteDir(fullPath)) {
+            let route = `{
+        path: '${root ? '/' : ''}${path}',
+        component: () => import('${vite_1.normalizePath(path_1.resolve(fullPath, 'index.vue'))}'),
         children: ${createRoutes(fullPath)}
-      `
-
-      const META_JS = resolve(fullPath, 'meta.js')
-      if (pathExistsSync(META_JS)) {
-        const metaName = `meta${hash(META_JS)}`
-        imports.push(`import ${metaName} from '${normalizePath(META_JS)}'`)
-        route = `${route}\n, meta: ${metaName}`
-      }
-
-      route = route + '}'
-      routes.push(route)
-    }
-  })
-
-  return `[${routes.toString()}]`
-}
-
-export default function() {
-  const VID = '@vue-routes'
-  const VIEWS_DIR = resolve(root, 'src/views')
-
-  return {
-    name: 'vue-routes-autoload-plugin',
-    resolveId: (id) => id === VID ? VID : undefined,
-    load(id) {
-      if (id === VID) {
-        if (!isDir(VIEWS_DIR)) {
-          return 'export default {}'
+      `;
+            const META_JS = path_1.resolve(fullPath, 'meta.js');
+            if (fs_extra_1.pathExistsSync(META_JS)) {
+                const metaName = `meta${hash_sum_1.default(META_JS)}`;
+                imports === null || imports === void 0 ? void 0 : imports.push(`import ${metaName} from '${vite_1.normalizePath(META_JS)}'`);
+                route = `${route}\n, meta: ${metaName}`;
+            }
+            route = route + '}';
+            routes.push(route);
         }
-
-        const imports = []
-        const routes = createRoutes(VIEWS_DIR, imports, true)
-
-        return `
+    });
+    return `[${routes.toString()}]`;
+};
+function default_1() {
+    const VID = '@vue-routes';
+    const VIEWS_DIR = path_1.resolve(utils_1.root, 'src/views');
+    return {
+        name: 'vue-routes-autoload-plugin',
+        resolveId: (id) => id === VID ? VID : undefined,
+        load(id) {
+            if (id === VID) {
+                if (!utils_1.isDir(VIEWS_DIR)) {
+                    return 'export default {}';
+                }
+                const imports = [];
+                const routes = createRoutes(VIEWS_DIR, imports, true);
+                return `
           ${imports.join('\n')}
           export default ${routes}
-        `
-      }
-    }
-  }
+        `;
+            }
+        }
+    };
 }
+exports.default = default_1;

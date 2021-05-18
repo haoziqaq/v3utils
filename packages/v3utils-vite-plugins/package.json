@@ -2,8 +2,8 @@
   "name": "@v3utils/vite-plugins",
   "version": "0.2.0",
   "description": "plugins of vite",
-  "main": "lib/index.js",
-  "module": "lib/index.js",
+  "main": "src/index.js",
+  "module": "src/index.js",
   "keywords": [
     "vite",
     "plugins"
@@ -11,8 +11,12 @@
   "author": "haoziqaq <357229046@qq.com>",
   "license": "MIT",
   "files": [
-    "lib"
+    "src"
   ],
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/haoziqaq/v3utils.git"
@@ -31,5 +35,9 @@
   },
   "peerDependencies": {
     "vite": "^2.3.3"
+  },
+  "gitHead": "9623a3f7c0fb02b60dd61b941cfa61d9ca4d8293",
+  "devDependencies": {
+    "typescript": "^4.2.4"
   }
 }
