@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.3](https://github.com/haoziqaq/v3utils/compare/v0.2.2...v0.2.3) (2021-05-18)
+
+
+### Bug Fixes
+
+* **vite-plugins:** fix package.json files ([6c2a964](https://github.com/haoziqaq/v3utils/commit/6c2a96412acfde4bbb2fa193d524e65f121c67fa))
+
+
+
+
+
 ## [0.2.2](https://github.com/haoziqaq/v3utils/compare/v0.2.1...v0.2.2) (2021-05-18)
 
 
