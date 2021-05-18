@@ -11,7 +11,8 @@
   "author": "haoziqaq <357229046@qq.com>",
   "license": "MIT",
   "files": [
-    "src"
+    "lib",
+    "tsconfig.json"
   ],
   "scripts": {
     "dev": "tsc --watch",
