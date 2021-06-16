@@ -6,7 +6,6 @@ import { root, isDir } from './utils'
 import { resolve } from 'path'
 // @ts-ignore
 import { normalizePath, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
-import chokidar from 'chokidar'
 
 const isRouteDir = (path: string) => isDir(path) && readdirSync(path).includes('index.vue')
 
@@ -42,13 +41,9 @@ const createRoutes = (dirPath: string, imports?: string[], root = false) => {
 export default function(): Plugin {
   const VID = '@vue-routes'
   const VIEWS_DIR = resolve(root, 'src/views')
-  let config: ResolvedConfig
 
   return {
     name: 'vue-routes-autoload-plugin',
-    configResolved(_config: ResolvedConfig) {
-      config = _config
-    },
     resolveId: (id: string) => id === VID ? VID : undefined,
     load(id: string) {
       if (id === VID) {
@@ -64,25 +59,6 @@ export default function(): Plugin {
           export default ${routes}
         `
       }
-    },
-    configureServer(server: ViteDevServer) {
-      const { root } = config
-
-      chokidar
-        .watch(VIEWS_DIR)
-        .on('add', () => {
-          server.ws.send({
-            type: 'update',
-            updates: [
-              {
-                type: 'js-update',
-                path: resolve(root, 'src/router/index.js'),
-                acceptedPath: resolve(root, 'src/router/index.js'),
-                timestamp: Date.now()
-              }
-            ]
-          })
-        })
     }
   }
 }
