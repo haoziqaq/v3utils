@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.5](https://github.com/haoziqaq/v3utils/compare/v0.2.4...v0.2.5) (2021-06-16)
+
+
+### Bug Fixes
+
+* **plugins:** hmr removed ([150309b](https://github.com/haoziqaq/v3utils/commit/150309bd7211e2f352ddc5f95b9bd2254eb5b473))
+
+
+
+
+
 ## [0.2.4](https://github.com/haoziqaq/v3utils/compare/v0.2.3...v0.2.4) (2021-06-16)
 
 
