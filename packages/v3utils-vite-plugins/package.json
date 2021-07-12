@@ -1,6 +1,6 @@
 {
   "name": "@v3utils/vite-plugins",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "plugins of vite",
   "main": "lib/index.js",
   "module": "lib/index.js",
