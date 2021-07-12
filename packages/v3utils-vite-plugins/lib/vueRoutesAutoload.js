@@ -35,24 +35,22 @@ const createRoutes = (dirPath, imports, root = false) => {
     });
     return `[${routes.toString()}]`;
 };
-function default_1() {
-    const VID = '@vue-routes';
-    const VIEWS_DIR = path_1.resolve(utils_1.root, 'src/views');
+function default_1(options) {
+    const views = options.views || path_1.resolve(utils_1.root, 'src/views');
+    const file = options.file || path_1.resolve(utils_1.root, 'src/router/index.js');
     return {
         name: 'vue-routes-autoload-plugin',
-        resolveId: (id) => id === VID ? VID : undefined,
-        load(id) {
-            if (id === VID) {
-                if (!utils_1.isDir(VIEWS_DIR)) {
-                    return 'export default {}';
+        transform(code, id) {
+            if (id === file) {
+                if (!utils_1.isDir(views)) {
+                    return code;
                 }
                 const imports = [];
-                const routes = createRoutes(VIEWS_DIR, imports, true);
-                return `
-          ${imports.join('\n')}
-          export default ${routes}
-        `;
+                const routes = createRoutes(views, imports, true);
+                code += `const autoRoutes = ${routes}\n routes.unshift(...autoRoutes)`;
+                return code;
             }
+            return code;
         }
     };
 }

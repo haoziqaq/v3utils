@@ -1,2 +1,7 @@
 import { Plugin } from 'vite';
-export default function (): Plugin;
+interface VueRoutesAutoLoadOptions {
+    file: string;
+    views: string;
+}
+export default function (options: VueRoutesAutoLoadOptions): Plugin;
+export {};

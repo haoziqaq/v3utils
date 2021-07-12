@@ -38,27 +38,31 @@ const createRoutes = (dirPath: string, imports?: string[], root = false) => {
   return `[${routes.toString()}]`
 }
 
-export default function(): Plugin {
-  const VID = '@vue-routes'
-  const VIEWS_DIR = resolve(root, 'src/views')
+interface VueRoutesAutoLoadOptions {
+  file: string
+  views: string
+}
+
+export default function(options: VueRoutesAutoLoadOptions): Plugin {
+  const views = options.views || resolve(root, 'src/views')
+  const file = options.file || resolve(root, 'src/router/index.js')
 
   return {
     name: 'vue-routes-autoload-plugin',
-    resolveId: (id: string) => id === VID ? VID : undefined,
-    load(id: string) {
-      if (id === VID) {
-        if (!isDir(VIEWS_DIR)) {
-          return 'export default {}'
+    transform(code: string, id: string) {
+      if (id === file) {
+        if (!isDir(views)) {
+          return code
         }
 
         const imports: string[] = []
-        const routes = createRoutes(VIEWS_DIR, imports, true)
+        const routes = createRoutes(views, imports, true)
 
-        return `
-          ${imports.join('\n')}
-          export default ${routes}
-        `
+        code += `const autoRoutes = ${routes}\n routes.unshift(...autoRoutes)`
+        return code
       }
+
+      return code
     }
   }
 }
