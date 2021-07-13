@@ -35,19 +35,49 @@ const createRoutes = (dirPath, imports, root = false) => {
     });
     return `[${routes.toString()}]`;
 };
-function default_1(options) {
-    const views = options.views || path_1.resolve(utils_1.root, 'src/views');
-    const file = options.file || path_1.resolve(utils_1.root, 'src/router/index.js');
+function reloadRouter(server, routerFile) {
+    var _a;
+    const mods = (_a = server.moduleGraph.getModulesByFile(routerFile)) !== null && _a !== void 0 ? _a : [];
+    const seen = new Set();
+    mods.forEach((mod) => server.moduleGraph.invalidateModule(mod, seen));
+    server.ws.send({
+        type: 'full-reload',
+        path: '*'
+    });
+}
+function default_1({ views, routerFile } = {
+    views: vite_1.normalizePath(path_1.resolve(utils_1.root, 'src/views')),
+    routerFile: vite_1.normalizePath(path_1.resolve(utils_1.root, 'src/router/index.js'))
+}) {
+    let server;
     return {
         name: 'vue-routes-autoload-plugin',
+        configureServer(_server) {
+            const declarationFile = path_1.resolve(path_1.dirname(routerFile), 'autoRouter.d.ts');
+            if (!fs_extra_1.pathExistsSync(declarationFile)) {
+                fs_extra_1.writeFileSync(declarationFile, 'declare const __VITE_PLUGIN_AUTO_ROUTES__: Array<any>');
+            }
+            server = _server;
+            server.watcher.on('add', (file) => {
+                if (vite_1.normalizePath(file).startsWith(views)) {
+                    reloadRouter(server, routerFile);
+                }
+            });
+            server.watcher.on('unlink', (file) => {
+                if (vite_1.normalizePath(file).startsWith(views)) {
+                    reloadRouter(server, routerFile);
+                }
+            });
+        },
         transform(code, id) {
-            if (id === file) {
+            if (id === routerFile) {
                 if (!utils_1.isDir(views)) {
                     return code;
                 }
                 const imports = [];
                 const routes = createRoutes(views, imports, true);
-                code += `const autoRoutes = ${routes}\n routes.unshift(...autoRoutes)`;
+                code = `${imports.join('\n')}\n${code}`;
+                code = code.replace('__VITE_PLUGIN_AUTO_ROUTES__', `${routes}`);
                 return code;
             }
             return code;
