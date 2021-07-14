@@ -1,32 +1,58 @@
 // @ts-ignore
-import { readdirSync } from 'fs-extra'
-import { root, isDir, replaceExt } from './utils'
-import { resolve } from 'path'
+import { readdirSync, pathExistsSync, writeFileSync } from 'fs-extra'
+import { root, isDir, replaceExt, reloadFile } from './utils'
+import { dirname, resolve } from 'path'
 // @ts-ignore
-import { normalizePath } from 'vite'
+import { normalizePath, ViteDevServer } from 'vite'
 
-export default function() {
-  const VID = '@vuex-modules'
-  const MODULES_DIR = resolve(root, 'src/store/modules')
+interface VuexModulesAutoLoadOptions {
+  store: string
+  modules: string
+}
+
+export default function({ modules, store }: VuexModulesAutoLoadOptions = {
+  modules: normalizePath(resolve(root, 'src/store/modules')),
+  store: normalizePath(resolve(root, 'src/store/index.js'))
+}) {
+  let server: ViteDevServer
 
   return {
     name: 'vuex-modules-autoload-plugin',
-    resolveId: (id: string) => id === VID ? VID : undefined,
-    load(id: string) {
-      if (id === VID) {
-        if (!isDir(MODULES_DIR)) {
-          return 'export default {}'
+    configureServer(_server: ViteDevServer) {
+      const declarationFile = resolve(dirname(store), 'autoModules.d.ts')
+
+      if (!pathExistsSync(declarationFile)) {
+        writeFileSync(declarationFile, 'declare const __VITE_PLUGIN_AUTO_MODULES__: any')
+      }
+
+      server = _server
+      server.watcher.on('add', (file) => {
+        if (normalizePath(file).startsWith(modules)) {
+          reloadFile(server, store)
+        }
+      })
+
+      server.watcher.on('unlink', (file) => {
+        if (normalizePath(file).startsWith(modules)) {
+          reloadFile(server, store)
+        }
+      })
+    },
+    transform(code: string, id: string) {
+      if (id === store) {
+        if (!isDir(modules)) {
+          return code
         }
 
-        const dir = readdirSync(MODULES_DIR)
+        const dir = readdirSync(modules)
         const imports = dir.map((moduleName: string) =>
-          `import ${replaceExt(moduleName)} from '${normalizePath(resolve(MODULES_DIR, moduleName))}'`
+          `import ${replaceExt(moduleName)} from '${normalizePath(resolve(modules, moduleName))}'`
         ).join('\n')
-        const exports = `export default { ${dir.map(replaceExt).join(',')} }`
-        return `\
-${imports}
-${exports}
-        `
+        const moduleNames = dir.map((moduleName: string) => replaceExt(moduleName)).toString()
+        code = `${imports}\n${code}`
+        code = code.replace('__VITE_PLUGIN_AUTO_MODULES__', `{ ${moduleNames} }`)
+
+        return code
       }
     }
   }

@@ -1,7 +1,7 @@
 import { Plugin } from 'vite';
 interface VueRoutesAutoLoadOptions {
-    routerFile: string;
+    router: string;
     views: string;
 }
-export default function ({ views, routerFile }?: VueRoutesAutoLoadOptions): Plugin;
+export default function ({ views, router }?: VueRoutesAutoLoadOptions): Plugin;
 export {};

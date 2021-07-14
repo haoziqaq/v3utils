@@ -2,7 +2,7 @@
 import hash from 'hash-sum'
 // @ts-ignore
 import { pathExistsSync, readdirSync, writeFileSync } from 'fs-extra'
-import { root, isDir } from './utils'
+import { root, isDir, reloadFile } from './utils'
 import { resolve, dirname } from 'path'
 // @ts-ignore
 import { ModuleNode, normalizePath, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
@@ -39,30 +39,22 @@ const createRoutes = (dirPath: string, imports?: string[], root = false) => {
 }
 
 interface VueRoutesAutoLoadOptions {
-  routerFile: string
+  router: string
   views: string
 }
 
-function reloadRouter(server: ViteDevServer, routerFile: string) {
-  const mods = server.moduleGraph.getModulesByFile(routerFile) ?? []
-  const seen = new Set<ModuleNode>()
-  mods.forEach((mod: ModuleNode) => server.moduleGraph.invalidateModule(mod, seen))
-  server.ws.send({
-    type: 'full-reload',
-    path: '*'
-  })
-}
 
-export default function({ views, routerFile }: VueRoutesAutoLoadOptions = {
+
+export default function({ views, router }: VueRoutesAutoLoadOptions = {
   views: normalizePath(resolve(root, 'src/views')),
-  routerFile: normalizePath(resolve(root, 'src/router/index.js'))
+  router: normalizePath(resolve(root, 'src/router/index.js'))
 }): Plugin {
   let server: ViteDevServer
 
   return {
     name: 'vue-routes-autoload-plugin',
     configureServer(_server) {
-      const declarationFile = resolve(dirname(routerFile), 'autoRouter.d.ts')
+      const declarationFile = resolve(dirname(router), 'autoRouter.d.ts')
 
       if (!pathExistsSync(declarationFile)) {
         writeFileSync(declarationFile, 'declare const __VITE_PLUGIN_AUTO_ROUTES__: Array<any>')
@@ -71,18 +63,18 @@ export default function({ views, routerFile }: VueRoutesAutoLoadOptions = {
       server = _server
       server.watcher.on('add', (file) => {
         if (normalizePath(file).startsWith(views)) {
-          reloadRouter(server, routerFile)
+          reloadFile(server, router)
         }
       })
 
       server.watcher.on('unlink', (file) => {
         if (normalizePath(file).startsWith(views)) {
-          reloadRouter(server, routerFile)
+          reloadFile(server, router)
         }
       })
     },
     transform(code: string, id: string) {
-      if (id === routerFile) {
+      if (id === router) {
         if (!isDir(views)) {
           return code
         }
